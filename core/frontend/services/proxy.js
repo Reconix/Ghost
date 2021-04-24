@@ -1,7 +1,7 @@
 // This file defines everything that helpers "require"
 // With the exception of modules like lodash, Bluebird
 // We can later refactor to enforce this something like we did in apps
-const hbs = require('./themes/engine');
+const hbs = require('./theme-engine/engine');
 const errors = require('@tryghost/errors');
 
 const {i18n} = require('../../server/lib/common');
@@ -61,12 +61,12 @@ module.exports = {
     },
 
     // The local template thing, should this be merged with the channels one?
-    templates: require('./themes/handlebars/template'),
+    templates: require('./theme-engine/handlebars/template'),
 
     // Various utils, needs cleaning up / simplifying
     socialUrls: require('@tryghost/social-urls'),
     blogIcon: require('../../server/lib/image').blogIcon,
     urlService: require('./url'),
     urlUtils: require('../../shared/url-utils'),
-    localUtils: require('./themes/handlebars/utils')
+    localUtils: require('./theme-engine/handlebars/utils')
 };

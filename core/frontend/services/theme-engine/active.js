@@ -18,6 +18,7 @@ const themeConfig = require('./config');
 const themeEngines = require('./engines');
 const config = require('../../../shared/config');
 const engine = require('./engine');
+const themeI18n = require('./i18n');
 
 // Current instance of ActiveTheme
 let currentActiveTheme;
@@ -29,12 +30,15 @@ class ActiveTheme {
      * @param {object} checkedTheme - the result of gscan.format for the theme we're activating
      * @param {object} error - bootstrap validates the active theme, we would like to remember this error
      */
-    constructor(loadedTheme, checkedTheme, error) {
+    constructor(settings, loadedTheme, checkedTheme, error) {
         // Assign some data, mark it all as pseudo-private
         this._name = loadedTheme.name;
         this._path = loadedTheme.path;
         this._mounted = false;
         this._error = error;
+
+        // We get passed in a locale
+        this._locale = settings.locale || 'en';
 
         // @TODO: get gscan to return validated, useful package.json fields for us!
         this._packageInfo = loadedTheme['package.json'];
@@ -51,6 +55,8 @@ class ActiveTheme {
 
         // Create a theme engines object
         this._engines = themeEngines.create(this._packageInfo);
+
+        this.initI18n();
     }
 
     get name() {
@@ -93,6 +99,19 @@ class ActiveTheme {
         return this._engines[key];
     }
 
+    /**
+     *
+     * @param {object} options
+     * @param {string} [options.activeTheme]
+     * @param {string} [options.locale]
+     */
+    initI18n(options = {}) {
+        options.activeTheme = options.activeTheme || this._name;
+        options.locale = options.locale || this._locale;
+
+        themeI18n.init(options);
+    }
+
     mount(siteApp) {
         // reset the asset hash
         // @TODO: set this on the theme instead of globally, or use proper file-based hash
@@ -122,8 +141,8 @@ module.exports = {
      * @param {object} checkedTheme - the result of gscan.format for the theme we're activating
      * @return {ActiveTheme}
      */
-    set(loadedTheme, checkedTheme, error) {
-        currentActiveTheme = new ActiveTheme(loadedTheme, checkedTheme, error);
+    set(settings, loadedTheme, checkedTheme, error) {
+        currentActiveTheme = new ActiveTheme(settings, loadedTheme, checkedTheme, error);
         return currentActiveTheme;
     }
 };
